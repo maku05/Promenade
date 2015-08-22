@@ -1,0 +1,97 @@
+<html ng-app="promenadeApp">
+<head>
+  <meta charset="utf8" />
+  <title>Promenade</title>
+<link href="css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body ng-controller="ArticlesCtrl">
+  <div class="container">
+	<div class="top" ng-class="{closed:search }">
+		<h1>Willkommen bei Promenade</h1>
+		<p class="premo">Finde ein schönes Bad in deiner Nähe. Einfach hier eingeben.</p>
+	</div>
+	<input class="search" type="text" ng-model="search">
+    <div class="result" ng-if="search">
+        <section class="tab clearfix">
+            <!-- draggable tab-navigation - created with angular-dragdrop.min.js -->
+            <div ng-class="{active:isSet(2)}" class="dragger" data-drag="true" data-jqyoui-options="{revert: 'invalid', axis: 'x', containment: 'parent'}" ng-model="tab"  jqyoui-draggable="{animate:true, onDrop: 'hide'}" ng-hide="isSet(2)" >Liste</div>
+            <div  class="drop" data-drop="true" data-jqyoui-options ng-model="tab"  jqyoui-droppable="{onDrop:'hide'}" ng-click="setTab(2)" ng-hide="isSet(2)">Karte</div>
+            <div  class="drop" data-drop="true" data-jqyoui-options ng-model="tab"  jqyoui-droppable="{onDrop:'hide'}" ng-click="setTab(1)" ng-hide="isSet(1)">Liste</div>
+            <div ng-class="{active:isSet(2)}" class="dragger" data-drag="true" data-jqyoui-options="{revert: 'invalid', axis: 'x', containment: 'parent'}" ng-model="tab" jqyoui-draggable="{animate:true, onDrop:'hide'}" ng-hide="isSet(1)">Karte</div>
+        </section>
+
+        <!-- result of search, ng-if because googlemap wouldn work with ng-show/ng-hide -->
+        <div class="list" ng-if="isSet(1)">
+            <div class="thead clearfix">
+                            <div class="column">Name des Bades</div>
+                            <div class="column">Kapazität</div>
+                            <div class="column">aktuelle Gästezahl</div>
+                            <div class="column">Ort</div>
+            </div>
+            <!-- put complete entry-information inside accordion, initialy show only name, city, capacity and attendance -->
+            <accordion close-others="false">
+                <accordion-group heading="{{article}}" ng-repeat="article in articles | filter:search">
+                    <accordion-heading class="clearfix">
+                        <div class="column">{{article.name}}</div>
+                        <div class="column">{{article.capacity}}</div>
+                        <div class="column">{{article.attendance}}</div>
+                        <div class="column">{{article.place}}</div>
+                     </accordion-heading>
+                    <div class="accordion-content clearfix">
+                        <img class="thumbnail" src="img/placeholder.gif">
+                        <table class="info">
+                            <tr>
+                                <td>Adresse:</td>
+                                <td>{{article.adress}}</td>
+                            </tr>
+                            <tr>
+                                <td>Telefon:</td>
+                                <td>{{article.phone}}</td>
+                            </tr>
+                            <tr>
+                                <td>Preise:</td>
+                                <td>{{article.price}}</td>
+                            </tr><tr>
+                                <td>Öffnungszeiten:</td>
+                                <td>{{article.open}}</td>
+                            </tr><tr>
+                                <td>Webseite:</td>
+                            <td><a href="{{article.url}}" target="_blank">{{article.name}}</a></td>
+                            </tr>
+                        </table>
+                    </div>
+                </accordion-group>
+            </accordion>
+         </div>
+         <!-- show entrys as marker on map, additional information in info-box -->
+        <div class="map" ng-if="isSet(2)">
+              <ui-gmap-google-map center='{latitude: lat, longitude: lng}' zoom='map.zoom' >
+                <ui-gmap-marker ng-click="onClick()" coords="{latitude: article.lat, longitude: article.long}"  idkey="article.id" ng-repeat="article in articles | filter:search">
+                    <ui-gmap-window options="infoOptions" ng-click="closeClick()">
+                        <ul class="marker-info">
+                            <li>{{article.name}}</li>
+                            <li>Auslastung: {{article.attendance}}/{{article.capacity}}</li>
+                            <li>Eintritt: {{article.price}}</li>
+                            <li>Öffnungszeiten: {{article.open}}</li>
+                            <li>Website: <a href="{{article.url}}">{{article.name}}</a></li>
+                        </ul>
+                    </ui-gmap-window>
+                </ui-gmap-marker>
+                <ui-gmap-marker coords="{latitude: lat, longitude: lng}" idkey="1000" icon="icon" >
+                    <ui-gmap-window options="infoOptions" ng-click="closeClick()"><div class="marker-info">Hier bist du</div></ui-gmap-window>
+                </ui-gmap-marker>
+        </ui-gmap-google-map>
+        </div>
+    </div>
+ </div>
+</body>
+<script src="js/jquery.js"></script>
+<script src="js/jquery-ui.min.js"></script>
+<script src="js/angular.js"></script>
+<script src="js/lodash.js"></script>
+<script src="js/angular-maps.js"></script>
+<script src="js/ui-bootstrap.min.js"></script>
+<script src="js/promenade.js"></script>
+<script src="js/angular-dragdrop.min.js"></script>
+</html>
